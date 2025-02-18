@@ -1,0 +1,7 @@
+- Game Loop: Handles the update-render cycle.
+- Basic window
+- Entity-Component System (ECS): Manages game objects and their behaviors.
+- Rendering Engine: Draws objects on the screen.
+- Physics Engine: Manages movement and collisions.
+- Input Handling: Handles player interactions.
+- Resource Management: Loads and manages assets like textures, models, and sounds.
