@@ -1,10 +1,10 @@
 BIN   = window
 CC    = g++
-FLAGS = -Iinclude -Wall -pedantic -std=c++17
-FLAGS_OSX = -Iinclude -I/opt/homebrew/include -Wall -pedantic -std=c++17
-LIBS  = -lGLEW -lglfw3 -lGL -lz
+FLAGS = -Iinclude -Iheader -Ishaders -Wno-unused-variable -Wall -pedantic -std=c++17
+FLAGS_OSX = -Iinclude -I/opt/homebrew/include -Iheader -Wall -pedantic -std=c++17
+LIBS  = -lGLEW -lglfw -lGL -lz -lm
 LIBS_OSX  = -L/opt/homebrew/lib -lglfw
-SRC   = glad.c window.cpp
+SRC   = src/glad.c src/*.cpp
 
 all:
 	$(CC) $(FLAGS) -o $(BIN) $(SRC) $(LIBS)
