@@ -7,7 +7,7 @@ LIBS_OSX  = -L/opt/homebrew/lib -lglfw
 SRC   = src/glad.c src/*.cpp
 
 all:
-	$(CC) $(FLAGS) -o $(BIN) $(SRC) $(LIBS)
+	$(CC) $(FLAGS) -o $(BIN) $(SRC) $(LIBS) && ./window
 osx:
 	$(CC) $(FLAGS_OSX) -o $(BIN) $(SRC) $(LIBS_OSX)
 clean:

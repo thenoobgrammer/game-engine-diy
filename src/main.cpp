@@ -22,10 +22,10 @@ float randomFloat()
 
 GLfloat vertices[] = {
     // positions          // colors           // texture coords
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
+    0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
+    0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
+    -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
 };
 
 GLuint indices[] =
@@ -41,7 +41,7 @@ int main()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  GLFWwindow *window = glfwCreateWindow(800, 800, "YoutubeOpenGL", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(800, 600, "YoutubeOpenGL", NULL, NULL);
   if (window == NULL)
   {
     std::cout << "Failed to create GLFW window" << std::endl;
@@ -51,7 +51,7 @@ int main()
   glfwMakeContextCurrent(window);
 
   gladLoadGL();
-  glViewport(0, 0, 800, 800);
+  glViewport(0, 0, 800, 600);
 
   Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
 
@@ -70,10 +70,12 @@ int main()
 
   GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
 
-  GLuint texture;
-  glGenTextures(1, &texture);
+  GLuint texture1, texture2;
+
+  // Texture 1-------------------------
+  glGenTextures(1, &texture1);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture);
+  glBindTexture(GL_TEXTURE_2D, texture1);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -84,29 +86,57 @@ int main()
   unsigned char *bytes = stbi_load("src/wall.jpg", &widthImg, &heightImg, &numColCh, 0);
   if (bytes)
   {
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);
-      glGenerateMipmap(GL_TEXTURE_2D);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);
+    glGenerateMipmap(GL_TEXTURE_2D);
   }
   else
   {
-      std::cout << "Failed to load texture" << std::endl;
+    std::cout << "Failed to load texture" << std::endl;
   }
   stbi_image_free(bytes);
-  glBindTexture(GL_TEXTURE_2D, 0);
 
-  GLuint text0Uni = glGetUniformLocation(shaderProgram.ID, "tex0");
+  // Texture 2---------------------------
+  glGenTextures(1, &texture2);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, texture2);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  bytes = stbi_load("src/awesomeface.png", &widthImg, &heightImg, &numColCh, 0);
+  if (bytes)
+  {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  }
+  else
+  {
+    std::cout << "Failed to load texture" << std::endl;
+  }
+  stbi_image_free(bytes);
+
   shaderProgram.Activate();
-  glUniform1i(text0Uni, 0);
+  // glUniform1i(glGetUniformLocation(shaderProgram.ID, "tex0"), 0);
+  glUniform1i(glGetUniformLocation(shaderProgram.ID, "tex1"), 1);
 
   while (!glfwWindowShouldClose(window))
   {
     glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+
     shaderProgram.Activate();
-    glUniform1f(uniID, 0.5f);
-    glBindTexture(GL_TEXTURE_2D, texture);
     VAO1.Bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
@@ -115,6 +145,7 @@ int main()
   VBO1.Delete();
   EBO1.Delete();
   shaderProgram.Delete();
+
   glfwDestroyWindow(window);
   glfwTerminate();
   return 0;
