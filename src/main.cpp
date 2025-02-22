@@ -14,11 +14,19 @@ float randomFloat()
   return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 }
 
+// GLfloat vertices[] = {
+//     -0.5f, -0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 0.0f, 0.0f,
+//     -0.5f, 0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 0.0f, 1.0f,
+//     0.5f, 0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 1.0f, 1.0f,
+//     0.5f, -0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 1.0f, 0.0f};
+
 GLfloat vertices[] = {
-    -0.5f, -0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 0.0f, 0.0f,
-    -0.5f, 0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 0.0f, 1.0f,
-    0.5f, 0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 1.0f, 1.0f,
-    0.5f, -0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 1.0f, 0.0f};
+    // positions          // colors           // texture coords
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
+};
 
 GLuint indices[] =
     {
@@ -62,25 +70,27 @@ int main()
 
   GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
 
-  // Texture
-  int widthImg, heightImg, numColCh;
-  unsigned char *bytes = stbi_load("cat.png", &widthImg, &heightImg, &numColCh, 0);
-
-  // std::cout << *bytes << std::endl;
-
   GLuint texture;
   glGenTextures(1, &texture);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-  glGenerateMipmap(GL_TEXTURE_2D);
-
+  int widthImg, heightImg, numColCh;
+  unsigned char *bytes = stbi_load("src/wall.jpg", &widthImg, &heightImg, &numColCh, 0);
+  if (bytes)
+  {
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);
+      glGenerateMipmap(GL_TEXTURE_2D);
+  }
+  else
+  {
+      std::cout << "Failed to load texture" << std::endl;
+  }
   stbi_image_free(bytes);
   glBindTexture(GL_TEXTURE_2D, 0);
 
