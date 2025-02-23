@@ -8,17 +8,12 @@
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
+#include "texture.h"
 
 float randomFloat()
 {
   return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 }
-
-// GLfloat vertices[] = {
-//     -0.5f, -0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 0.0f, 0.0f,
-//     -0.5f, 0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 0.0f, 1.0f,
-//     0.5f, 0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 1.0f, 1.0f,
-//     0.5f, -0.5f, 0.0f, randomFloat(), randomFloat(), randomFloat(), 1.0f, 0.0f};
 
 GLfloat vertices[] = {
     // positions          // colors           // texture coords
@@ -57,7 +52,6 @@ int main()
 
   VAO VAO1;
   VAO1.Bind();
-
   VBO VBO1(vertices, sizeof(vertices));
   EBO EBO1(indices, sizeof(indices));
 
@@ -68,59 +62,16 @@ int main()
   VBO1.Unbind();
   EBO1.Unbind();
 
-  GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
-
-  GLuint texture1, texture2;
+  Texture brick, face;
 
   // Texture 1-------------------------
-  glGenTextures(1, &texture1);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture1);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  int widthImg, heightImg, numColCh;
-  unsigned char *bytes = stbi_load("src/wall.jpg", &widthImg, &heightImg, &numColCh, 0);
-  if (bytes)
-  {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  }
-  else
-  {
-    std::cout << "Failed to load texture" << std::endl;
-  }
-  stbi_image_free(bytes);
+  brick.Load("src/wall.jpg", GL_RGB);
 
   // Texture 2---------------------------
-  glGenTextures(1, &texture2);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, texture2);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  bytes = stbi_load("src/awesomeface.png", &widthImg, &heightImg, &numColCh, 0);
-  if (bytes)
-  {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  }
-  else
-  {
-    std::cout << "Failed to load texture" << std::endl;
-  }
-  stbi_image_free(bytes);
+  face.Load("src/awesomeface.png", GL_RGBA);
 
   shaderProgram.Activate();
-  // glUniform1i(glGetUniformLocation(shaderProgram.ID, "tex0"), 0);
+  glUniform1i(glGetUniformLocation(shaderProgram.ID, "tex0"), 0);
   glUniform1i(glGetUniformLocation(shaderProgram.ID, "tex1"), 1);
 
   while (!glfwWindowShouldClose(window))
@@ -129,9 +80,9 @@ int main()
     glClear(GL_COLOR_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture1);
+    glBindTexture(GL_TEXTURE_2D, brick.Get());
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, texture2);
+    glBindTexture(GL_TEXTURE_2D, face.Get());
 
     shaderProgram.Activate();
     VAO1.Bind();
