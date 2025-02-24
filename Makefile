@@ -9,6 +9,6 @@ SRC   = src/glad.c src/*.cpp
 all:
 	$(CC) $(FLAGS) -o $(BIN) $(SRC) $(LIBS) && ./window
 osx:
-	$(CC) $(FLAGS_OSX) -o $(BIN) $(SRC) $(LIBS_OSX)
+	$(CC) $(FLAGS_OSX) -o $(BIN) $(SRC) $(LIBS_OSX) && ./window
 clean:
 	rm -rf $(BIN)

@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <cerrno>
+#include <glm/glm.hpp>
 
 std::string get_file_coontents(const char *filename);
 
