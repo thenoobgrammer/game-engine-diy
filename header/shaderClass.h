@@ -18,6 +18,7 @@ public:
 
     void Activate();
     void Delete();
+    void SetMat4(const std::string &name, const glm::mat4 &mat);
 };
 
 #endif

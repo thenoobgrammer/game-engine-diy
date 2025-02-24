@@ -1,4 +1,5 @@
 #include "shaderClass.h"
+#include <glm/glm.hpp>
 
 std::string get_file_contents(const char *filename)
 {
@@ -50,4 +51,9 @@ void Shader::Activate()
 void Shader::Delete()
 {
     glDeleteProgram(ID);
+}
+
+void Shader::SetMat4(const std::string &name, const glm::mat4 &mat)
+{
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
